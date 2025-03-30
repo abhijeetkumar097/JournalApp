@@ -1,17 +1,15 @@
 package com.example.journalApp.controller;
 
-import com.example.journalApp.Service.JournalEntryService;
 import com.example.journalApp.Service.UserService;
-import com.example.journalApp.entity.JournalEntity;
 import com.example.journalApp.entity.UserEntity;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/user")
@@ -24,20 +22,25 @@ public class UserController {
         return userService.getAll();
     }
 
-    @PostMapping("/add")
-    public void createUser(@RequestBody UserEntity userEntity) {
-        userService.saveEntry(userEntity);
-    }
-
-    @PutMapping("/update/{username}")
-    public ResponseEntity<?>  updateUser(@PathVariable String username,@RequestBody UserEntity userEntity) {
-        UserEntity userInDb = userService.findByUsername(username);
+    @PutMapping("/update")
+    public ResponseEntity<?>  updateUser(@RequestBody UserEntity userEntity) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userName = authentication.getName();
+        UserEntity userInDb = userService.findByUsername(userName);
         if(userInDb != null) {
             userInDb.setUsername(userEntity.getUsername());
             userInDb.setPassword(userEntity.getPassword());
-            userService.saveEntry(userInDb);
+            userService.saveNewEntry(userInDb);
             return new ResponseEntity<>(HttpStatus.OK);
         }
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deleteUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userName = authentication.getName();
+        userService.deleteByUsername(userName);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

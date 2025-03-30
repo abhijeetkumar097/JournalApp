@@ -3,7 +3,6 @@ package com.example.journalApp.controller;
 import com.example.journalApp.Service.UserService;
 import com.example.journalApp.entity.UserEntity;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +17,6 @@ public class PublicController {
 
     @PostMapping("/add")
     public void createUser(@RequestBody UserEntity userEntity) {
-        userService.saveEntry(userEntity);
+        userService.saveNewEntry(userEntity);
     }
 }

@@ -35,16 +35,24 @@ public class JournalEntryService {
         return journalEntryRepo.findAll();
     }
 
-    public void deleteById(ObjectId objectId, String username) {
+    public void deleteById(ObjectId objectId, String username) throws Exception{
         UserEntity user = userService.findByUsername(username);
-        user.getJournalEntries().removeIf(x -> x.getId().equals(objectId));
-        journalEntryRepo.deleteById(objectId);
-        userService.saveEntry(user);
+        boolean removed = user.getJournalEntries().removeIf(x -> x.getId().equals(objectId));
+        if(removed) {
+            journalEntryRepo.deleteById(objectId);
+            userService.saveEntry(user);
+        }
+        else {
+            throw new Exception("No such Id");
+        }
     }
 
     public Optional<JournalEntity> findById(ObjectId objectId) {
         return journalEntryRepo.findById(objectId);
     }
 
+    public List<?> findByUsername(String username) {
+        return userService.findByUsername(username).getJournalEntries();
+    }
 
 }
